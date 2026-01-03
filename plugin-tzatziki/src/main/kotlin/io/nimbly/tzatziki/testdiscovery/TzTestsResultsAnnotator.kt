@@ -136,7 +136,7 @@ private class PrintStackTraceFix(element: PsiElement, val stacktrace: String?) :
         startElement: PsiElement,
         endElement: PsiElement) {
 
-        AnalyzeStacktraceUtil.addConsole(project, null, TZATZIKI_NAME, stacktrace)
+        stacktrace?.let { AnalyzeStacktraceUtil.addConsole(project, null, TZATZIKI_NAME, it) }
     }
 
     override fun getFamilyName() = TZATZIKI_NAME
@@ -175,7 +175,7 @@ class ClearAnnotationsFix(element: PsiElement) : LocalQuickFixAndIntentionAction
                     file.project.cucumberExecutionTracker().removeProgressionGuides()
                 }
             } catch (_: Exception) {
-                //TODO Replace with "SideEffectNotAllowedException" when Cucumber no more supports Idea version prior to 2023.3.6...
+                // Catch any exceptions during late invocation (including SideEffectNotAllowedException in newer versions)
             }
         }
     }

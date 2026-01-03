@@ -1,10 +1,18 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.7.20"
-    id("org.jetbrains.intellij") version "1.13.1"
+    id("org.jetbrains.kotlin.jvm") version "2.2.0"
+    id("org.jetbrains.intellij.platform") version "2.10.4"
 }
 
 val versions: Map<String, String> by rootProject.extra
 val notes: String by rootProject.extra
+
+repositories {
+    mavenCentral()
+    
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
 
 dependencies {
     implementation(project(":common"))
@@ -15,8 +23,6 @@ dependencies {
     implementation("com.openhtmltopdf:openhtmltopdf-java2d:1.0.10")
     implementation("com.openhtmltopdf:openhtmltopdf-svg-support:1.0.10")
 
-
-
     implementation("org.freemarker:freemarker:2.3.30")
     implementation("com.github.rjeschke:txtmark:0.13")
     implementation("io.cucumber:tag-expressions:4.1.0")
@@ -24,6 +30,23 @@ dependencies {
     runtimeOnly(project(":extensions:java-cucumber"))
     runtimeOnly(project(":extensions:kotlin"))
     runtimeOnly(project(":extensions:scala"))
+
+    intellijPlatform {
+        intellijIdea("2025.3.1")
+        
+        bundledPlugin("com.intellij.java")
+        bundledPlugin("org.jetbrains.kotlin")
+        bundledPlugin("JUnit")
+        bundledPlugin("com.intellij.properties")
+        bundledModule("intellij.platform.langInjection")
+        
+        plugin("Gherkin:${versions["gherkin"]}")
+        plugin("cucumber-java:${versions["cucumberJava"]}")
+        plugin("org.intellij.scala:${versions["scala"]}")
+        
+        pluginVerifier()
+        zipSigner()
+    }
 }
 
 configurations.all {
@@ -32,55 +55,32 @@ configurations.all {
     exclude("xml-apis", "xml-apis-ext")
 }
 
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    version.set(versions["intellij-version"])
-
-    plugins.set(listOf(
-        "Gherkin:${versions["gherkin"]}",
-        "Kotlin",
-        "org.intellij.intelliLang",
-        "java",
-        "JUnit",
-        "cucumber-java:${versions["cucumberJava"]}",
-        "org.intellij.scala:${versions["scala"]}",
-        "com.intellij.properties:${versions["properties"]}",
-        "PsiViewer:${versions["psiViewer"]}",
-    ))
-}
-
 tasks {
-
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
+        sourceCompatibility = "21"
+        targetCompatibility = "21"
     }
+    
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "11"
-    }
-
-    patchPluginXml {
-        sinceBuild.set("222")    // 2021.2.4
-        untilBuild.set("243.*")
-
-        changeNotes.set(notes)
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
     }
 
     buildSearchableOptions {
+        enabled = false
+    }
+    
+    prepareJarSearchableOptions {
         enabled = false
     }
 
     jar {
         archiveBaseName.set(rootProject.name)
     }
+    
     instrumentedJar {
-         exclude("META-INF/*") // Workaround for runPluginVerifier duplicate plugins...
-    }
-
-    runPluginVerifier {
-        ideVersions.set(
-            listOf("IU-2022.3.1"))
+        // Removed META-INF exclusion - plugin.xml must be included in the distribution
     }
 
     publishPlugin {
@@ -89,10 +89,19 @@ tasks {
     }
 }
 
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            sinceBuild = "222"
+            untilBuild = "253.*"
+        }
+        
+        changeNotes = notes
+    }
+}
+
 configurations.all {
-
     resolutionStrategy {
-
         // Fix for CVE-2020-11987, CVE-2019-17566, CVE-2022-41704, CVE-2022-42890
         force("org.apache.xmlgraphics:batik-parser:1.16")
         force("org.apache.xmlgraphics:batik-anim:1.16")

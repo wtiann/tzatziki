@@ -44,7 +44,7 @@ class TzSourcePositionProvider : SourcePositionProvider() {
     class TzSourcePosition(val element: PsiElement) : SourcePosition() {
 
         override fun navigate(requestFocus: Boolean) {
-            //TODO
+            // Not implemented - class is deprecated
         }
 
         override fun canNavigate(): Boolean {

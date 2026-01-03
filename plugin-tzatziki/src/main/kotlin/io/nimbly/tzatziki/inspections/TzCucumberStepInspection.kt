@@ -56,11 +56,12 @@ class TzCucumberStepInspection : GherkinInspection() {
                     fix = TzCucumberCreateStepFix()
                     allStepsFix = TzCucumberCreateAllStepsFix()
                 }
+                val fixes = listOfNotNull(fix, allStepsFix).toTypedArray()
                 holder.registerProblem(
                     reference.element,
                     reference.rangeInElement,
                     CucumberBundle.message("cucumber.inspection.undefined.step.msg.name", *arrayOfNulls(0)),
-                    fix, allStepsFix
+                    *fixes
                 )
             }
         }

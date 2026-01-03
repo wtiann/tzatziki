@@ -1,6 +1,6 @@
 <!--
   ~ CUCUMBER +
-  ~ Copyright (C) 2023  Maxime HAMM - NIMBLY CONSULTING - Maxime.HAMM@nimbly-consulting.com
+  ~ Copyright (C) 2023-2026  Maxime HAMM - NIMBLY CONSULTING - Maxime.HAMM@nimbly-consulting.com
   ~
   ~ This document is free software; you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -226,11 +226,11 @@
         <psi.referenceContributor language="Gherkin" implementation="io.nimbly.tzatziki.references.TzCucumberReferenceContributor"/>
         -->
 
-        //TODO Remove after Gherkin plugin will fix issue IDEA-269898
+        // Workaround for Gherkin plugin issue IDEA-269898 - may be removable in future versions
         <annotator language="Gherkin"
                    implementationClass="io.nimbly.tzatziki.annotators.TzGherkinAnnotator"/>
 
-        //TODO Remove after Gherkin plugin will fix issue IDEA-269898
+        // Workaround for Gherkin plugin issue IDEA-269898 - may be removable in future versions
         <localInspection language="Gherkin"
                          implementationClass="io.nimbly.tzatziki.inspections.TzCucumberStepInspection"
                          shortName="CucumberPlusUndefinedStep" bundle="messages.CucumberBundle"
@@ -269,19 +269,21 @@
 <!--        <projectService serviceImplementation="io.nimbly.tzatziki.services.TzPersistenceStateService"/>-->
 <!--        <projectService serviceImplementation="io.nimbly.tzatziki.services.TzFileService"/>-->
 
-        // New UI 2023 Icons mapping to "expUI" folder
+        // New UI Icons mapping to "expUI" folder
         <iconMapper mappingFile="TzatzikiIconMappings.json"/>
 
         <postStartupActivity implementation="io.nimbly.tzatziki.TzPostStartup"/>
 
     </extensions>
 
-    <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.lang</depends>
-    <depends>com.intellij.modules.xml</depends>
-    <depends>org.intellij.intelliLang</depends>
-    <depends>com.intellij.properties</depends>
-    <depends>gherkin</depends>
+    <dependencies>
+        <plugin id="com.intellij.modules.platform"/>
+        <plugin id="com.intellij.modules.lang"/>
+        <plugin id="com.intellij.modules.xml"/>
+        <module name="intellij.platform.langInjection"/>
+        <plugin id="com.intellij.properties"/>
+        <plugin id="gherkin"/>
+    </dependencies>
 
     <!-- Optional dependencies
     https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html#optional-plugin-dependencies -->

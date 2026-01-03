@@ -32,9 +32,9 @@ import javax.swing.JLabel
 import javax.swing.SwingConstants
 
 object CommonIcons {
-    val TRANSPARENT = IconLoader.getIcon("/io/nimbly/tzatziki/icons/transparent.png", javaClass)
-    val COUNT_BASE = IconLoader.getIcon("/io/nimbly/tzatziki/icons/usagesBase.png", javaClass)
-    val COUNT_BASE_ZERO = IconLoader.getIcon("/io/nimbly/tzatziki/icons/usagesBaseGray.png", javaClass)
+    val TRANSPARENT = IconLoader.getIcon("/io/nimbly/tzatziki/icons/transparent.png", javaClass.classLoader)
+    val COUNT_BASE = IconLoader.getIcon("/io/nimbly/tzatziki/icons/usagesBase.png", javaClass.classLoader)
+    val COUNT_BASE_ZERO = IconLoader.getIcon("/io/nimbly/tzatziki/icons/usagesBaseGray.png", javaClass.classLoader)
 }
 
 /**

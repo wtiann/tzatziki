@@ -12,6 +12,13 @@ val notes by extra {"""
        <br/>
        Change notes :
        <ul> 
+         <li><b>17.10</b> IntelliJ IDEA 2025.3 compatibility<br/>
+           - Migrated to IntelliJ Platform Gradle Plugin 2.10.4<br/>
+           - Updated to Kotlin 2.2.0 and Gradle 8.13<br/>
+           - Plugin Model v2 with unified distribution support<br/>
+           - Fixed API breaking changes (ProblemNode, nullability improvements)<br/>
+           - Updated all deprecated Kotlin APIs<br/>
+         </li>
          <li><b>17.0</b> Rewriting breakpoint supports. Now you can set breakpoints from Gherkin ! (Java, Koltin, Scala only) <br/>      
          <li><b>16.6</b> New button to display also files not part of sources/resources path <br/>      
          <li><b>16.5</b> Filter step completion according to tags filtering setup <br/>      
@@ -74,61 +81,21 @@ val notes by extra {"""
      */
 }
 
-//    const val PLATFORM_TYPE_ANDROID_STUDIO = "AI"
-//    const val PLATFORM_TYPE_CLION = "CL"
-//    const val PLATFORM_TYPE_GATEWAY = "GW"
-//    const val PLATFORM_TYPE_GOLAND = "GO"
-//    const val PLATFORM_TYPE_INTELLIJ_COMMUNITY = "IC"
-//    const val PLATFORM_TYPE_INTELLIJ_ULTIMATE = "IU"
-//    const val PLATFORM_TYPE_PHPSTORM = "PS"
-//    const val PLATFORM_TYPE_PYCHARM = "PY"
-//    const val PLATFORM_TYPE_PYCHARM_COMMUNITY = "PC"
-//    const val PLATFORM_TYPE_RIDER = "RD"
-//    const val PLATFORM_TYPE_RUSTROVER = "RR"
-//    const val PLATFORM_TYPE_FLEET = "FLIJ"
-
-//val versions by extra {
-//    mapOf(
-//        "intellij-version" to "IU-2022.3.1",
-//        "cucumberJavascript" to "223.7571.113", // https://plugins.jetbrains.com/plugin/7418-cucumber-js
-//        "gherkin" to "223.7571.113",            //https://plugins.jetbrains.com/plugin/9164-gherkin/versions
-//        "properties" to "223.7571.117",         //https://plugins.jetbrains.com/plugin/11594-properties/versions
-//        "psiViewer" to "223-SNAPSHOT",          //https://plugins.jetbrains.com/plugin/227-psiviewer/versions
-//        "cucumberJava" to "223.7571.123",       //https://plugins.jetbrains.com/plugin/7212-cucumber-for-java/versions
-//        "scala" to "2022.3.20",                 //https://plugins.jetbrains.com/plugin/1347-scala/versions
-//    )
-//}
-
 val versions by extra {
     mapOf(
-        "intellij-version" to "IU-2022.3.1",
+        "intellij-version" to "2025.3.1",
 
-        "gherkin" to "223.7571.113",        //https://plugins.jetbrains.com/plugin/9164-gherkin/versions
-        "properties" to "223.7571.117",     //https://plugins.jetbrains.com/plugin/11594-properties/versions
-        "psiViewer" to "223-SNAPSHOT",      //https://plugins.jetbrains.com/plugin/227-psiviewer/versions
-        "cucumberJava" to "223.7571.123",   //https://plugins.jetbrains.com/plugin/7212-cucumber-for-java/versions
-        "scala" to "2022.3.20",             //https://plugins.jetbrains.com/plugin/1347-scala/versions
+        "gherkin" to "243.21565.122",       //https://plugins.jetbrains.com/plugin/9164-gherkin/versions
+        "properties" to "243.21565.238",    //https://plugins.jetbrains.com/plugin/11594-properties/versions (bundled)
+        "psiViewer" to "243-SNAPSHOT",      //https://plugins.jetbrains.com/plugin/227-psiviewer/versions
+        "cucumberJava" to "243.21565.129",  //https://plugins.jetbrains.com/plugin/7212-cucumber-for-java/versions
+        "scala" to "2024.3.43",             //https://plugins.jetbrains.com/plugin/1347-scala/versions
     )
-}
-
-val versions_211 by extra {
-    mapOf(
-        "intellij-version" to "IU-211.7142.45",
-        "gherkin" to "211.6693.111",
-        "cucumberJava" to "211.6693.111",
-        "properties" to "211.6693.44",
-        "scala" to "2021.1.17")
 }
 
 allprojects {
 
     repositories {
         mavenCentral()
-        maven {
-            url = URI("https://oss.sonatype.org/content/repositories/snapshots/")
-        }
-        maven {
-            url = URI("https://dl.bintray.com/jetbrains/intellij-plugin-service")
-        }
     }
 }

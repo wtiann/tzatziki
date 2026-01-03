@@ -67,7 +67,7 @@ class TzRunCodeListener : StartupActivity {
                             LOG.debug("C+ XDebuggerManager.TOPIC - Step found")
 
                             // Check that breakpoint is marked as managed by C+
-                            val codeBreakpoint = newContext.sourcePosition.elementAt.findBreakpoint()
+                            val codeBreakpoint = newContext.sourcePosition.elementAt?.findBreakpoint()
                             if (codeBreakpoint?.conditionExpression?.expression != CUCUMBER_FAKE_EXPRESSION) {
 
                                 // Highlight ghekin step (and also examples if)
