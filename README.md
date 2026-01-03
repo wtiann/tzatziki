@@ -26,6 +26,54 @@ IntelliJ IDEA plugins for Cucumber/Gherkin development and translation features.
 - **Cucumber+**: https://plugins.jetbrains.com/plugin/16289-cucumber-
 - **Translation+**: https://plugins.jetbrains.com/plugin/23656-translation-
 
+## Key Features
+
+### Cucumber+ Plugin
+
+- **Smart Table Editing**: Auto-formatting Gherkin tables with Excel integration (copy/paste)
+- **Step Completion**: Intelligent step suggestions with usage counts and deprecation status
+- **Test Execution**: Run scenarios with visual success/failure indicators
+- **Breakpoint System**: Debug Gherkin files with bidirectional breakpoint sync (Java/Kotlin/Scala)
+- **PDF Export**: Export features to professionally styled PDF documents
+- **Tool Window**: Organize and filter features by tags, run tests directly
+- **Line Markers**: See step usage counts and navigate to implementations
+- **Markdown Support**: Render images and links in feature files
+
+### Translation+ Plugin
+
+- **Multiple Translation Engines**: Google Translate (free), DeepL, Microsoft Translator, Baidu, ChatGPT/OpenAI
+- **Smart Refactoring**: Translate code identifiers while preserving naming conventions (camelCase, snake_case, etc.)
+- **In-Editor Translation**: Select and translate any text with Ctrl+T
+- **Dictionary View**: English word definitions with pronunciation
+- **Format Preservation**: Maintains structure for HTML, JSON, XML, CSV files
+- **120+ Languages**: Comprehensive language support
+
+## Quick Start
+
+### Using PDF Export
+
+1. **Right-click** a `.feature` file in the editor or project view
+2. Select **"Export feature to PDF"** (or "Export features to PDF" for multiple files)
+3. Choose **Portrait** or **Landscape** orientation
+4. PDF is automatically generated and opened
+
+**Customize PDF output:**
+- Create `.cucumber+` folder in your resources directory
+- Add `cucumber+.properties` for headers, footers, front page content
+- Add `cucumber+.css` for custom styling
+- Add `cucumber+.template.ftl` for custom front page template
+
+See [TESTING_GUIDE.md](TESTING_GUIDE.md) for detailed PDF export configuration options.
+
+### Using Translation
+
+1. **Select text** in any file
+2. Press **Ctrl+T** (or right-click → Translate)
+3. Choose target language and engine
+4. **Apply** to replace text or **Refactor** to rename code identifiers
+
+Configure translation engines in **Settings → Tools → Translation+**
+
 ## Development Setup
 
 ### Prerequisites
@@ -166,6 +214,16 @@ The project has been updated for IntelliJ IDEA 2025.3 compatibility:
 - Gradle wrapper updated to 8.13
 
 For plugin users, versions 17.10.0+ support IntelliJ IDEA 2025.3.
+
+## Testing
+
+A comprehensive testing guide with detailed feature walkthroughs is available in [TESTING_GUIDE.md](TESTING_GUIDE.md).
+
+Sample projects for testing are included:
+- `sample/java-easy-as-pie/` - Java with Cucumber
+- `sample/kotlin-easy-as-pie/` - Kotlin with Cucumber
+- `sample/javascript-easy-as-pie/` - JavaScript with Cucumber
+- `sample/rich-example/` - Multi-module Gradle project
 
 ## Credits
 
