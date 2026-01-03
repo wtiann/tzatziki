@@ -1,6 +1,6 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.7.20"
-    id("org.jetbrains.intellij") version "1.13.1"
+    id("org.jetbrains.kotlin.jvm") version "2.2.0"
+    id("org.jetbrains.intellij.platform") version "2.10.4"
 }
 
 group = "io.nimbly.translation"
@@ -11,6 +11,7 @@ val notes by extra {"""
        <br/>
        Change notes :
        <ul>
+         <li><b>10.5.1</b> IntelliJ IDEA 2025.3 compatibility</li>
          <!--<li><b>11.0.0</b> Adding support of Deep Translate API</li>-->
          <li><b>10.0.0</b> Adding support of Baidu API</li>
          <li><b>9.0.0</b> Adding support of ChatGPT API</li>
@@ -30,35 +31,39 @@ val notes by extra {"""
 
 val versions by extra {
     mapOf(
-        "intellij-version" to "IU-2022.3.1",
+        "intellij-version" to "2025.3.1",
     )
 }
 
-intellij {
-    version.set(versions["intellij-version"])
+repositories {
+    mavenCentral()
+    
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
     implementation(project(":i18n"))
+    
+    intellijPlatform {
+        intellijIdea(versions["intellij-version"]!!)
+        
+        pluginVerifier()
+        zipSigner()
+    }
 }
 
 tasks {
-
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
+        sourceCompatibility = "21"
+        targetCompatibility = "21"
     }
+    
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "11"
-    }
-
-    patchPluginXml {
-
-        // Check build number here : https://www.jetbrains.com/idea/download/other.html
-        sinceBuild.set("222.4554.10")    // 2021.2.4
-        untilBuild.set("243.*")
-
-        changeNotes.set(notes)
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
     }
 
     buildSearchableOptions {
@@ -68,13 +73,9 @@ tasks {
     jar {
         archiveBaseName.set("translation")
     }
+    
     instrumentedJar {
         // exclude("META-INF/*") // Workaround for runPluginVerifier duplicate plugins...
-    }
-
-    runPluginVerifier {
-        ideVersions.set(
-            listOf("IU-2022.3.1"))
     }
 
     publishPlugin {
@@ -83,3 +84,14 @@ tasks {
     }
 }
 
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            // Check build number here : https://www.jetbrains.com/idea/download/other.html
+            sinceBuild = "222.4554.10"
+            untilBuild = "253.*"
+        }
+        
+        changeNotes = notes
+    }
+}

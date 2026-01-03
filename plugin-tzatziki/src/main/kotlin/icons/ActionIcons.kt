@@ -34,22 +34,22 @@ object ActionIcons {
     @JvmField val DELETE_LINE = IconLoader.getIcon("/io/nimbly/tzatziki/icons/line-delete-16x16.png", javaClass)
     @JvmField val DELETE_COLUMN = IconLoader.getIcon("/io/nimbly/tzatziki/icons/culumn-delete-16x16.png", javaClass)
 
-    @JvmField val CUCUMBER_PLUS_64 = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/cucumber-plus.png", javaClass)
-    @JvmField val CUCUMBER_PLUS_16 = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/cucumber-plus-16x16.png", javaClass)
-    @JvmField val CUCUMBER_PLUS = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/cucumber-plus.png", javaClass)
+    @JvmField val CUCUMBER_PLUS_64 = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/cucumber-plus.png", javaClass.classLoader)
+    @JvmField val CUCUMBER_PLUS_16 = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/cucumber-plus-16x16.png", javaClass.classLoader)
+    @JvmField val CUCUMBER_PLUS = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/cucumber-plus.png", javaClass.classLoader)
 
-    @JvmField val RUN = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/run.svg", javaClass)
+    @JvmField val RUN = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/run.svg", javaClass.classLoader)
 
-    @JvmField val STEP = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/step.svg", javaClass)
+    @JvmField val STEP = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/step.svg", javaClass.classLoader)
 
-    @JvmField val FILTER = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/filter.svg", javaClass)
+    @JvmField val FILTER = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/filter.svg", javaClass.classLoader)
 
-    @JvmField val TAG = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/tag.svg", javaClass)
-    @JvmField val TAG_GRAY = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/tagGray.svg", javaClass)
+    @JvmField val TAG = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/tag.svg", javaClass.classLoader)
+    @JvmField val TAG_GRAY = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/tagGray.svg", javaClass.classLoader)
 
-    @JvmField val PDF = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/pdf.svg", javaClass)
+    @JvmField val PDF = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/pdf.svg", javaClass.classLoader)
 
-    @JvmField val GROUP_BY_MODULE = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/groupByModule.svg", javaClass)
+    @JvmField val GROUP_BY_MODULE = IconManager.getInstance().getIcon("/io/nimbly/tzatziki/icons/groupByModule.svg", javaClass.classLoader)
 
-    val ImagesFileType = IconManager.getInstance().getIcon("/org/intellij/images/icons/ImagesFileType.svg", javaClass)
+    val ImagesFileType = IconManager.getInstance().getIcon("/org/intellij/images/icons/ImagesFileType.svg", javaClass.classLoader)
 }

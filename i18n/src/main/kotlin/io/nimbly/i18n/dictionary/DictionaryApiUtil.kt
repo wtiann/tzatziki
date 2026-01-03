@@ -133,7 +133,7 @@ fun generateHtml(word: Word): String {
 
     word.meanings.forEach { meaning ->
 
-        sb.append("<h2>${meaning.partOfSpeech.capitalize()}</h2>")
+        sb.append("<h2>${meaning.partOfSpeech.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}</h2>")
 
         meaning.definitions.forEach { definition ->
 
