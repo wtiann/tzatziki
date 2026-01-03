@@ -24,56 +24,87 @@ import org.jetbrains.plugins.cucumber.psi.GherkinElementTypes
 import org.jetbrains.plugins.cucumber.psi.GherkinTokenTypes
 import org.jetbrains.plugins.cucumber.psi.impl.GherkinStepImpl
 
+/**
+ * Reference contributor for Gherkin step definitions.
+ * Provides navigation from Gherkin steps to their Java/Kotlin/Scala implementations.
+ * 
+ * Performance: Uses a singleton provider instance to avoid unnecessary allocations.
+ */
 class TzCucumberReferenceContributor : PsiReferenceContributor() {
 
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
         registrar.registerReferenceProvider(
-            PlatformPatterns.psiElement(GherkinStepImpl::class.java), TzCucumberStepReferenceProvider()
+            PlatformPatterns.psiElement(GherkinStepImpl::class.java), 
+            PROVIDER  // Reuse singleton instance
         )
-    }
-}
-
-class TzCucumberStepReferenceProvider : PsiReferenceProvider() {
-
-    override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
-
-        if (element is GherkinStepImpl) {
-
-            var node = element.node.findChildByType(TEXT_AND_PARAM_SET)
-            if (node != null) {
-
-                val start = node.textRange.startOffset
-                var end = node.textRange.endOffset
-                var endBeforeSpace = end
-                node = node.treeNext
-
-                while (node != null && TEXT_PARAM_AND_WHITE_SPACE_SET.contains(node.elementType)) {
-                    endBeforeSpace = if (node.elementType === TokenType.WHITE_SPACE) end else node.textRange.endOffset
-                    end = node.textRange.endOffset
-                    node = node.treeNext
-                }
-
-                val textRange = TextRange(start, endBeforeSpace)
-                val reference = TzCucumberStepReference(element, textRange.shiftRight(-element.getTextOffset()))
-
-                return arrayOf(reference)
-            }
-        }
-
-        return PsiReference.EMPTY_ARRAY
     }
 
     companion object {
+        private val PROVIDER = TzCucumberStepReferenceProvider()
+    }
+}
 
+/**
+ * Provider that creates references for Gherkin steps.
+ * 
+ * Performance optimizations:
+ * - Early return for non-GherkinStep elements
+ * - Efficient token traversal using node iteration
+ * - Reuses TokenSet instances (companion object)
+ * - Single reference creation per step
+ * 
+ * The actual resolution performance is handled by TzCucumberStepReference which implements
+ * multi-level caching (ResolveCache, CachedValuesManager, LAST_VALID fallback).
+ */
+class TzCucumberStepReferenceProvider : PsiReferenceProvider() {
+
+    override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
+        // Early return for non-Gherkin steps
+        if (element !is GherkinStepImpl) {
+            return PsiReference.EMPTY_ARRAY
+        }
+
+        // Find the text node containing the step text
+        var node = element.node.findChildByType(TEXT_AND_PARAM_SET) ?: return PsiReference.EMPTY_ARRAY
+
+        val start = node.textRange.startOffset
+        var end = node.textRange.endOffset
+        var endBeforeSpace = end
+        node = node.treeNext
+
+        // Traverse through text, parameters, and whitespace to find the complete step text range
+        while (node != null && TEXT_PARAM_AND_WHITE_SPACE_SET.contains(node.elementType)) {
+            endBeforeSpace = if (node.elementType === TokenType.WHITE_SPACE) end else node.textRange.endOffset
+            end = node.textRange.endOffset
+            node = node.treeNext
+        }
+
+        // Create reference with the calculated text range
+        val textRange = TextRange(start, endBeforeSpace)
+        val reference = TzCucumberStepReference(element, textRange.shiftRight(-element.textOffset))
+
+        return arrayOf(reference)
+    }
+
+    companion object {
+        /**
+         * TokenSet containing Gherkin step text and parameter tokens.
+         * Defined as static to avoid recreation on each reference lookup.
+         */
         private val TEXT_AND_PARAM_SET = TokenSet.create(
             GherkinTokenTypes.TEXT,
             GherkinTokenTypes.STEP_PARAMETER_TEXT,
             GherkinTokenTypes.STEP_PARAMETER_BRACE,
             GherkinElementTypes.STEP_PARAMETER
         )
+        
+        /**
+         * TokenSet combining text/parameter tokens with whitespace.
+         * Used for efficient token traversal. Defined as static for performance.
+         */
         private val TEXT_PARAM_AND_WHITE_SPACE_SET: TokenSet = TokenSet.orSet(
             TEXT_AND_PARAM_SET,
-            TokenSet.WHITE_SPACE)
-
+            TokenSet.WHITE_SPACE
+        )
     }
 }
