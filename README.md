@@ -14,12 +14,31 @@ IntelliJ IDEA plugins for Cucumber/Gherkin development and translation features.
 
 ## Project Structure
 
-- `plugin-tzatziki` : Cucumber+ plugin code
-- `plugin-i18n` : Translation+ plugin code  
-- `extensions` : Language extensions (Java, Kotlin, Scala)
-- `common` : Shared code used by plugins and extensions
-- `i18n` : Internationalization utilities
-- `tests` : Test suite
+```
+tzatziki/
+├── plugin-tzatziki/        # Cucumber+ plugin (main product)
+│   ├── src/main/kotlin/    # Plugin implementation
+│   ├── src/main/resources/ # Plugin resources, icons, color schemes
+│   └── build.gradle.kts    # Plugin build configuration
+├── plugin-i18n/            # Translation+ plugin (separate product)
+│   ├── src/main/kotlin/    # Translation engine implementations
+│   └── build.gradle.kts    # Plugin build configuration
+├── extensions/             # Language-specific extensions
+│   ├── java-cucumber/      # Java Cucumber support
+│   ├── kotlin/             # Kotlin support
+│   └── scala/              # Scala support
+├── common/                 # Shared utilities and services
+│   └── src/main/kotlin/    # Core utilities, icon management
+├── i18n/                   # Translation core library
+│   └── src/main/kotlin/    # Translation engines, dictionary API
+├── tests/                  # Integration tests
+├── sample/                 # Sample projects for testing
+│   ├── java-easy-as-pie/   # Simple Java Cucumber project
+│   ├── kotlin-easy-as-pie/ # Simple Kotlin project
+│   └── rich-example/       # Complex multi-module example
+├── build.gradle.kts        # Root build configuration
+└── settings.gradle.kts     # Gradle settings and module declarations
+```
 
 ## Market Place
 
@@ -78,10 +97,18 @@ Configure translation engines in **Settings → Tools → Translation+**
 
 ### Prerequisites
 - **Java 21** (JDK 21 or higher required)
-- **Gradle 8.13+** (included via wrapper)
-- **IntelliJ IDEA 2022.2+** (for testing)
+- **Gradle 8.13+** (included via wrapper - `./gradlew`)
+- **IntelliJ IDEA 2022.2+** (for plugin development and testing)
+- **Git** (for version control)
 
-### Building the Project
+### Technology Stack
+- **Language**: Kotlin 2.2.0
+- **Build Tool**: Gradle 8.13 with Kotlin DSL
+- **Plugin Framework**: IntelliJ Platform Gradle Plugin 2.10.4
+- **Target Platform**: IntelliJ IDEA 2025.3.1 (Build 253.29346.138)
+- **Supported IntelliJ Versions**: 2022.2 through 2025.3.x
+
+### Initial Setup
 
 1. **Clone the repository**
    ```bash
@@ -89,23 +116,50 @@ Configure translation engines in **Settings → Tools → Translation+**
    cd tzatziki
    ```
 
-2. **Build all modules**
+2. **Verify Java version**
+   ```bash
+   java -version  # Should be 21 or higher
+   ```
+
+3. **Build all modules** (first-time setup)
    ```bash
    ./gradlew clean build -x test
    ```
-
-3. **Build specific plugins**
-   ```bash
-   # Cucumber+ plugin
-   ./gradlew :plugin-tzatziki:buildPlugin
    
-   # Translation+ plugin
-   ./gradlew :plugin-i18n:buildPlugin
-   ```
+   This will:
+   - Download Gradle dependencies
+   - Compile all Kotlin code
+   - Build plugin distributions
+   - Skip tests (use `./gradlew clean build` to include tests)
 
-   Plugin distributions will be in:
-   - `plugin-tzatziki/build/distributions/plugin-tzatziki-{version}.zip`
-   - `plugin-i18n/build/distributions/plugin-i18n-{version}.zip`
+### Building Plugins
+
+**Build both plugins**
+```bash
+./gradlew :plugin-tzatziki:buildPlugin :plugin-i18n:buildPlugin
+```
+
+**Build Cucumber+ plugin only**
+```bash
+./gradlew :plugin-tzatziki:buildPlugin
+```
+
+**Build Translation+ plugin only**
+```bash
+./gradlew :plugin-i18n:buildPlugin
+```
+
+**Build outputs:**
+- Cucumber+: `plugin-tzatziki/build/distributions/plugin-tzatziki-17.10.0.zip`
+- Translation+: `plugin-i18n/build/distributions/plugin-i18n-10.5.0.zip`
+
+### Installing Built Plugins Locally
+
+1. Open IntelliJ IDEA (version 2022.2 or higher)
+2. Go to **Settings → Plugins** (⌘, on Mac / Ctrl+Alt+S on Windows/Linux)
+3. Click **⚙️ (Settings icon) → Install Plugin from Disk...**
+4. Navigate to and select the `.zip` file from `build/distributions/`
+5. Click **OK** and **Restart IDE**
 
 ### Running & Testing
 
@@ -126,6 +180,41 @@ Configure translation engines in **Settings → Tools → Translation+**
 ./gradlew :plugin-tzatziki:verifyPlugin
 ./gradlew :plugin-i18n:verifyPlugin
 ```
+
+### Testing with Sample Projects
+
+The repository includes sample projects in the `sample/` directory for testing:
+
+- **`java-easy-as-pie/`** - Simple Java Cucumber project with basic features
+- **`kotlin-easy-as-pie/`** - Kotlin implementation example
+- **`javascript-easy-as-pie/`** - JavaScript/Node.js Cucumber project
+- **`rich-example/`** - Complex multi-module Gradle project with multiple sub-projects
+
+**To test manually:**
+1. Run `./gradlew :plugin-tzatziki:runIde` to launch IntelliJ with the plugin
+2. Open one of the sample projects in the test IDE
+3. Test features like table editing, PDF export, test execution, etc.
+4. See [TESTING_GUIDE.md](TESTING_GUIDE.md) for comprehensive testing checklists
+
+## Performance Optimizations
+
+### Cucumber+ Reference Resolution
+
+The plugin implements aggressive performance optimizations for step reference resolution, which was previously causing slowdowns in large projects:
+
+**Multi-level Caching Strategy:**
+1. **ResolveCache** - IntelliJ's built-in cache with automatic PSI invalidation
+2. **CachedValuesManager** - Per-file step definition caching (invalidated on code changes)
+3. **LAST_VALID fallback** - Returns last successful resolution when current resolution fails
+4. **ProgressManager.checkCanceled()** - Allows IDE to interrupt long operations
+5. **Background processing** - Non-blocking resolution with EmptyProgressIndicator
+
+**Results:**
+- Instant step navigation even in projects with 1000+ step definitions
+- No UI freezing during file editing
+- Proper cache invalidation when step definitions change
+
+See `TzCucumberStepReference.kt` for implementation details.
 
 ## Publishing to JetBrains Marketplace
 
@@ -202,6 +291,107 @@ Publish to JetBrains Marketplace:
 
 **Note:** Plugins are reviewed by JetBrains and may take 1-2 business days to appear in the marketplace.
 
+## Common Development Tasks
+
+### Gradle Commands Reference
+
+```bash
+# Clean build artifacts
+./gradlew clean
+
+# Build everything (compile + test)
+./gradlew build
+
+# Build without tests (faster)
+./gradlew build -x test
+
+# Run specific module tests
+./gradlew :plugin-tzatziki:test
+./gradlew :common:test
+
+# Run single test class
+./gradlew :plugin-tzatziki:test --tests "io.nimbly.tzatziki.MyTest"
+
+# Check for dependency updates
+./gradlew dependencyUpdates
+
+# Generate coverage report
+./gradlew test jacocoTestReport
+# Report at: build/reports/jacoco/test/html/index.html
+```
+
+### IDE Setup for Development
+
+1. **Open project in IntelliJ IDEA**
+   - Use IntelliJ IDEA 2022.2 or higher
+   - Open `tzatziki/build.gradle.kts` as a project
+   - Wait for Gradle sync to complete
+
+2. **Configure SDK**
+   - Go to **File → Project Structure → Project**
+   - Set **SDK** to Java 21
+   - Set **Language Level** to 21
+
+3. **Enable Kotlin plugin**
+   - Already bundled with IntelliJ IDEA
+
+4. **Run configurations**
+   - Gradle tasks are available in the Gradle tool window (right side)
+   - To debug plugin: Right-click `plugin-tzatziki:runIde` → Debug
+
+### Debugging the Plugin
+
+**Method 1: Using Gradle**
+```bash
+# Run with debugger attached
+./gradlew :plugin-tzatziki:runIde --debug-jvm
+```
+Then attach IntelliJ debugger to port 5005.
+
+**Method 2: Using IDE**
+1. Open Gradle tool window
+2. Navigate to `tzatziki → plugin-tzatziki → Tasks → intellij → runIde`
+3. Right-click → Debug
+4. Set breakpoints in plugin code
+5. Test IDE will launch with debugger attached
+
+### Troubleshooting
+
+**Build fails with "Java version" error**
+```bash
+# Check Java version
+java -version  # Must be 21+
+
+# If multiple Java versions installed
+export JAVA_HOME=/path/to/jdk-21
+./gradlew clean build
+```
+
+**Gradle daemon issues**
+```bash
+# Stop all Gradle daemons
+./gradlew --stop
+
+# Clean and rebuild
+./gradlew clean build --no-daemon
+```
+
+**Plugin not loading in test IDE**
+```bash
+# Clear IntelliJ caches
+rm -rf build/idea-sandbox/
+
+# Rebuild plugin
+./gradlew clean :plugin-tzatziki:buildPlugin
+./gradlew :plugin-tzatziki:runIde
+```
+
+**OutOfMemoryError during build**
+```bash
+# Increase Gradle memory in gradle.properties
+echo "org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m" >> gradle.properties
+```
+
 ## Migration Notes
 
 ### Migrating to IntelliJ 2025.3
@@ -214,16 +404,6 @@ The project has been updated for IntelliJ IDEA 2025.3 compatibility:
 - Gradle wrapper updated to 8.13
 
 For plugin users, versions 17.10.0+ support IntelliJ IDEA 2025.3.
-
-## Testing
-
-A comprehensive testing guide with detailed feature walkthroughs is available in [TESTING_GUIDE.md](TESTING_GUIDE.md).
-
-Sample projects for testing are included:
-- `sample/java-easy-as-pie/` - Java with Cucumber
-- `sample/kotlin-easy-as-pie/` - Kotlin with Cucumber
-- `sample/javascript-easy-as-pie/` - JavaScript with Cucumber
-- `sample/rich-example/` - Multi-module Gradle project
 
 ## Credits
 

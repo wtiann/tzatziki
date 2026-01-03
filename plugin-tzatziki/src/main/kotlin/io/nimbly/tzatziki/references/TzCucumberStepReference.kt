@@ -39,11 +39,33 @@ import java.util.*
 import java.util.stream.Collectors
 
 
+/**
+ * Key for storing last valid resolution results as a fallback mechanism.
+ * When step definitions cannot be resolved (e.g., during file editing),
+ * we return the last successfully resolved results to maintain functionality.
+ */
 val LAST_VALID = Key<Array<ResolveResult>>("LAST_VALID")
 
-// Cf. https://github.com/JetBrains/intellij-plugins/blob/master/cucumber/src/org/jetbrains/plugins/cucumber/steps/reference/CucumberStepReference.java
+/**
+ * Custom reference implementation for Cucumber step definitions with performance optimizations.
+ * 
+ * Performance optimizations:
+ * 1. ResolveCache: Caches resolution results using IntelliJ's built-in cache
+ * 2. LAST_VALID fallback: Returns last valid results when current resolution fails
+ * 3. CachedValuesManager: Caches step definitions per feature file (invalidated on PSI changes)
+ * 4. ProgressManager.checkCanceled(): Allows IDE to cancel long-running operations
+ * 5. Background processing: Uses EmptyProgressIndicator for non-blocking resolution
+ * 
+ * Reference: https://github.com/JetBrains/intellij-plugins/blob/master/cucumber/src/org/jetbrains/plugins/cucumber/steps/reference/CucumberStepReference.java
+ */
 class TzCucumberStepReference(private val myStep: PsiElement, private val myRange: TextRange) : PsiPolyVariantReference {
 
+    /**
+     * Resolves step reference to step definition(s).
+     * Uses multi-level caching strategy for optimal performance:
+     * - First level: ResolveCache (IDE-managed, invalidated on PSI changes)
+     * - Second level: LAST_VALID fallback (preserves last working state)
+     */
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
 
         val resolved = ResolveCache.getInstance(element.project)
@@ -111,6 +133,16 @@ class TzCucumberStepReference(private val myStep: PsiElement, private val myRang
         return CucumberStepHelper.findStepDefinitions(
             myStep.containingFile, (myStep as GherkinStepImpl))
     }
+    /**
+     * Internal resolution logic with aggressive performance optimizations.
+     * 
+     * Key optimizations:
+     * - Early returns to avoid unnecessary processing
+     * - CachedValuesManager for step definitions (cached per file, invalidated on PSI changes)
+     * - Set-based duplicate prevention (faster than list contains)
+     * - ProgressManager.checkCanceled() allows IDE to interrupt long operations
+     * - Stream processing minimizes memory allocations
+     */
     internal fun multiResolveInner(): Array<ResolveResult> {
 
         val module = ModuleUtilCore.findModuleForPsiElement(myStep)
@@ -124,6 +156,8 @@ class TzCucumberStepReference(private val myStep: PsiElement, private val myRang
             return ResolveResult.EMPTY_ARRAY
 
         val featureFile = myStep.containingFile
+        // Cache step definitions per feature file - significant performance improvement
+        // for projects with many feature files and step definitions
         val stepDefinitions = CachedValuesManager.getCachedValue(featureFile) {
             val allStepDefinition: MutableList<AbstractStepDefinition> = ArrayList()
             for (e in frameworks) {
@@ -144,6 +178,7 @@ class TzCucumberStepReference(private val myStep: PsiElement, private val myRang
             if (stepDefinition.supportsStep(myStep)) {
                 for (stepVariant in stepVariants) {
                     val element = stepDefinition.element
+                    // Allow IDE to cancel this operation if needed (e.g., user starts typing)
                     ProgressManager.checkCanceled()
                     if (stepDefinition.matches(stepVariant!!) && element != null && !resolved.contains(element)) {
                         resolved.add(element)
@@ -157,6 +192,10 @@ class TzCucumberStepReference(private val myStep: PsiElement, private val myRang
             .toTypedArray()
     }
 
+    /**
+     * Resolver that runs in background with proper progress handling.
+     * Uses EmptyProgressIndicator for non-blocking execution.
+     */
     private class MyResolver : ResolveCache.PolyVariantResolver<TzCucumberStepReference> {
         override fun resolve(ref: TzCucumberStepReference, incompleteCode: Boolean): Array<ResolveResult> {
 

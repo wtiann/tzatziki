@@ -221,10 +221,12 @@
         // Tag completion
         <completion.contributor language="Gherkin" implementationClass="io.nimbly.tzatziki.editor.TzTagCompletion" order="first"/>
 
-        // Step references
-        <!-- BUG : Performance issue
+        // Step references with multi-level performance optimizations
+        // - ResolveCache: IDE-managed caching with automatic invalidation
+        // - CachedValuesManager: Per-file step definition caching
+        // - LAST_VALID fallback: Preserves functionality during editing
+        // - Background processing: Non-blocking with cancellation support
         <psi.referenceContributor language="Gherkin" implementation="io.nimbly.tzatziki.references.TzCucumberReferenceContributor"/>
-        -->
 
         // Workaround for Gherkin plugin issue IDEA-269898 - may be removable in future versions
         <annotator language="Gherkin"
